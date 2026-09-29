@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+}
+
+@theme inline {
+  --color-ring: var(--color-zinc-950);
+  --animate-in: enter 0.2s ease-out;
+  --animate-out: exit 0.15s ease-in;
+
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(2px) scale(0.97);
+    }
+  }
+  @keyframes exit {
+    to {
+      opacity: 0;
+      transform: translateY(2px) scale(0.97);
+    }
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--color-zinc-950);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.dark *:focus-visible {
+  outline-color: var(--color-zinc-300);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-zinc-300);
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--color-zinc-700);
+}
+
+/* FullCalendar overrides */
+.fc {
+  --fc-border-color: var(--color-zinc-200);
+  --fc-today-bg-color: var(--color-zinc-50);
+  --fc-neutral-bg-color: transparent;
+  --fc-page-bg-color: transparent;
+  font-family: var(--font-sans) !important;
+}
+
+.dark .fc {
+  --fc-border-color: var(--color-zinc-800);
+  --fc-today-bg-color: var(--color-zinc-900);
+  --fc-neutral-text-color: var(--color-zinc-400);
+  color: var(--color-zinc-100);
+}
+
+.fc .fc-button {
+  background: var(--color-zinc-900) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  padding: 6px 14px !important;
+  text-transform: capitalize !important;
+}
+
+.dark .fc .fc-button {
+  background: var(--color-zinc-800) !important;
+  color: var(--color-zinc-100) !important;
+}
+
+.fc .fc-button:hover {
+  background: var(--color-zinc-700) !important;
+}
+
+.fc .fc-button-active {
+  background: var(--color-zinc-950) !important;
+}
+
+.dark .fc .fc-button-active {
+  background: var(--color-zinc-600) !important;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+}
+
+.fc .fc-col-header-cell {
+  padding: 10px 0 !important;
+  font-weight: 500 !important;
+  font-size: 0.8125rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--color-zinc-500) !important;
+}
+
+.fc .fc-timegrid-slot {
+  height: 3rem !important;
+}
+
+.fc .fc-timegrid-slot-label {
+  font-size: 0.75rem !important;
+  color: var(--color-zinc-400) !important;
+}
+
+.fc .fc-event {
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 2px 6px !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+}
+
+/* Toast styles */
+[data-sonner-toaster] {
+  font-family: var(--font-sans) !important;
+}
