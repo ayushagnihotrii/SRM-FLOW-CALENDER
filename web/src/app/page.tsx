@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header, GoogleGIcon } from "@/components/header";
+import { openGoogleSignInWindow } from "@/lib/google-auth-popup";
 
 const steps = [
   {
@@ -65,16 +66,10 @@ const features = [
 ];
 
 export default function HomePage() {
-  const handleGoogleLogin = async () => {
-    try {
-      const res = await fetch("/api/auth/google/url?state=dashboard");
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch {
-      window.location.href = "/api/auth/google/callback?demo=true&state=dashboard";
-    }
+  const handleGoogleLogin = () => {
+    openGoogleSignInWindow(() => {
+      window.location.href = "/dashboard";
+    }, "dashboard");
   };
 
   return (

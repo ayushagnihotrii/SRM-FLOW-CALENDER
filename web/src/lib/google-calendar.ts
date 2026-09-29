@@ -22,10 +22,9 @@ export function isGoogleConfigured(): boolean {
   return Boolean(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET);
 }
 
-export function getGoogleAuthUrl(state = "sync"): string {
+export function getGoogleAuthUrl(state = "sync", isPopup = false): string {
   if (!isGoogleConfigured()) {
-    // Return direct internal demo callback if Google keys are not configured yet
-    return `/api/auth/google/callback?demo=true&state=${state}`;
+    return `/auth/google-select?state=${encodeURIComponent(state)}${isPopup ? "&popup=true" : ""}`;
   }
 
   const scopes = [
@@ -41,8 +40,8 @@ export function getGoogleAuthUrl(state = "sync"): string {
     response_type: "code",
     scope: scopes,
     access_type: "offline",
-    prompt: "consent",
-    state,
+    prompt: "select_account consent",
+    state: isPopup ? `${state}_popup` : state,
   });
 
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;

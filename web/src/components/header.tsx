@@ -7,6 +7,7 @@ import { useTheme } from "@/components/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { openGoogleSignInWindow } from "@/lib/google-auth-popup";
 
 interface UserProfile {
   id: string;
@@ -75,17 +76,11 @@ export function Header() {
     }
   };
 
-  const handleLogin = async () => {
-    try {
-      const res = await fetch("/api/auth/google/url?state=dashboard");
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (e) {
-      console.error(e);
-      window.location.href = "/api/auth/google/callback?demo=true&state=dashboard";
-    }
+  const handleLogin = () => {
+    openGoogleSignInWindow(() => {
+      checkUser();
+      window.location.reload();
+    }, "dashboard");
   };
 
   const handleLogout = async () => {

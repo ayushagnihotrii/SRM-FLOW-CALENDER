@@ -12,7 +12,67 @@ export async function GET(request: NextRequest) {
   const isDemo = request.nextUrl.searchParams.get("demo") === "true";
   const state = request.nextUrl.searchParams.get("state") || "dashboard";
 
-  const redirectTarget = state.startsWith("/") ? state : `/${state}`;
+  const rawState = request.nextUrl.searchParams.get("state") || "dashboard";
+  const isPopup =
+    rawState.includes("_popup") ||
+    request.nextUrl.searchParams.get("popup") === "true";
+  const cleanState = rawState.replace("_popup", "");
+  const redirectTarget = cleanState.startsWith("/")
+    ? cleanState
+    : `/${cleanState}`;
+
+  function createResponse(userId: string) {
+    if (isPopup) {
+      const html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>CampusPulse — Signed In</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #09090b; color: #f4f4f5; }
+    .card { text-align: center; padding: 24px; }
+    .spinner { border: 2px solid #27272a; border-top: 2px solid #3b82f6; border-radius: 50%; width: 28px; height: 28px; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="spinner"></div>
+    <div style="font-size: 16px; font-weight: 600;">Signed in successfully!</div>
+    <div style="font-size: 13px; color: #a1a1aa; margin-top: 6px;">Closing window and synchronizing...</div>
+  </div>
+  <script>
+    try {
+      if (window.opener) {
+        window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', userId: '${userId}' }, '*');
+      }
+    } catch(e) {}
+    setTimeout(function() { window.close(); }, 600);
+  </script>
+</body>
+</html>`;
+      const res = new NextResponse(html, {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+      res.cookies.set("campuspulse_session", userId, {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 30,
+      });
+      return res;
+    }
+
+    const res = NextResponse.redirect(
+      new URL(`${redirectTarget}?auth=success`, request.url)
+    );
+    res.cookies.set("campuspulse_session", userId, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 30,
+    });
+    return res;
+  }
 
   try {
     if (isDemo || !isGoogleConfigured() || !code) {
@@ -26,16 +86,7 @@ export async function GET(request: NextRequest) {
         campusPulseCalendarId: "campuspulse_demo_calendar",
       });
 
-      const response = NextResponse.redirect(
-        new URL(`${redirectTarget}?auth=success`, request.url)
-      );
-      response.cookies.set("campuspulse_session", demoUser.id, {
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 30, // 30 days
-      });
-      return response;
+      return createResponse(demoUser.id);
     }
 
     // Exchange code for tokens
@@ -70,23 +121,33 @@ export async function GET(request: NextRequest) {
       console.warn("Could not pre-initialize calendar on callback:", calErr);
     }
 
-    const response = NextResponse.redirect(
-      new URL(`${redirectTarget}?auth=success`, request.url)
-    );
-    response.cookies.set("campuspulse_session", user.id, {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30,
-    });
-
-    return response;
+    return createResponse(user.id);
   } catch (err) {
     console.error("OAuth callback error:", err);
+    if (isPopup) {
+      const errHtml = `<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; background: #09090b; color: #f87171; display:flex; align-items:center; justify-content:center; height:100vh;">
+  <div style="text-align:center;">
+    <h3>Authentication Failed</h3>
+    <p>${err instanceof Error ? err.message : "Could not sign in"}</p>
+    <button onclick="window.close()" style="padding: 8px 16px; border-radius: 6px; background:#27272a; color:#fff; border:none; cursor:pointer;">Close</button>
+  </div>
+</body>
+</html>`;
+      return new NextResponse(errHtml, {
+        status: 400,
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
+
     return NextResponse.redirect(
-      new URL(`/dashboard?auth=error&message=${encodeURIComponent(
-        err instanceof Error ? err.message : "Authentication failed"
-      )}`, request.url)
+      new URL(
+        `/dashboard?auth=error&message=${encodeURIComponent(
+          err instanceof Error ? err.message : "Authentication failed"
+        )}`,
+        request.url
+      )
     );
   }
 }
