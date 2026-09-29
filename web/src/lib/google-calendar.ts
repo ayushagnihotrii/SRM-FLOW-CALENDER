@@ -4,12 +4,38 @@ import crypto from "crypto";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
-const GOOGLE_REDIRECT_URI =
-  process.env.GOOGLE_REDIRECT_URI ||
-  "http://localhost:3001/api/auth/google/callback";
 const GOOGLE_CALENDAR_SCOPE =
   process.env.GOOGLE_CALENDAR_SCOPE ||
   "https://www.googleapis.com/auth/calendar.app.created";
+
+export function getEffectiveRedirectUri(customUriOrOrigin?: string): string {
+  if (customUriOrOrigin) {
+    if (customUriOrOrigin.startsWith("http://") || customUriOrOrigin.startsWith("https://")) {
+      if (customUriOrOrigin.includes("/api/auth/google/callback")) {
+        return customUriOrOrigin;
+      }
+      return `${customUriOrOrigin.replace(/\/$/, "")}/api/auth/google/callback`;
+    }
+  }
+
+  if (process.env.GOOGLE_REDIRECT_URI && !process.env.GOOGLE_REDIRECT_URI.includes("localhost")) {
+    return process.env.GOOGLE_REDIRECT_URI;
+  }
+
+  if (process.env.NEXT_PUBLIC_APP_URL && !process.env.NEXT_PUBLIC_APP_URL.includes("localhost")) {
+    return `${process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/api/auth/google/callback`;
+  }
+
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/api/auth/google/callback`;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}/api/auth/google/callback`;
+  }
+
+  return process.env.GOOGLE_REDIRECT_URI || "http://localhost:3001/api/auth/google/callback";
+}
 
 const DEFAULT_SEMESTER_START =
   process.env.NEXT_PUBLIC_SEMESTER_START || "2026-09-28";
@@ -22,10 +48,16 @@ export function isGoogleConfigured(): boolean {
   return Boolean(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET);
 }
 
-export function getGoogleAuthUrl(state = "sync", isPopup = false): string {
+export function getGoogleAuthUrl(
+  state = "sync",
+  isPopup = false,
+  redirectUriOrOrigin?: string
+): string {
   if (!isGoogleConfigured()) {
     return `/auth/google-select?state=${encodeURIComponent(state)}${isPopup ? "&popup=true" : ""}`;
   }
+
+  const effectiveRedirectUri = getEffectiveRedirectUri(redirectUriOrOrigin);
 
   const scopes = [
     "openid",
@@ -36,7 +68,7 @@ export function getGoogleAuthUrl(state = "sync", isPopup = false): string {
 
   const params = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID,
-    redirect_uri: GOOGLE_REDIRECT_URI,
+    redirect_uri: effectiveRedirectUri,
     response_type: "code",
     scope: scopes,
     access_type: "offline",
@@ -47,16 +79,20 @@ export function getGoogleAuthUrl(state = "sync", isPopup = false): string {
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(code: string): Promise<{
+export async function exchangeCodeForTokens(
+  code: string,
+  redirectUriOrOrigin?: string
+): Promise<{
   accessToken: string;
   refreshToken?: string;
   expiresIn: number;
 }> {
+  const effectiveRedirectUri = getEffectiveRedirectUri(redirectUriOrOrigin);
   const params = new URLSearchParams({
     code,
     client_id: GOOGLE_CLIENT_ID,
     client_secret: GOOGLE_CLIENT_SECRET,
-    redirect_uri: GOOGLE_REDIRECT_URI,
+    redirect_uri: effectiveRedirectUri,
     grant_type: "authorization_code",
   });
 

@@ -89,9 +89,19 @@ export async function GET(request: NextRequest) {
       return createResponse(demoUser.id);
     }
 
+    // Resolve dynamic request origin for exact redirect_uri match with Google OAuth
+    const host =
+      request.headers.get("x-forwarded-host") ||
+      request.headers.get("host") ||
+      request.nextUrl.host;
+    const proto =
+      request.headers.get("x-forwarded-proto") ||
+      (host.includes("localhost") ? "http" : "https");
+    const origin = `${proto}://${host}`;
+
     // Exchange code for tokens
     const { accessToken, refreshToken, expiresIn } =
-      await exchangeCodeForTokens(code);
+      await exchangeCodeForTokens(code, origin);
 
     // Fetch user profile
     const profile = await getGoogleUserInfo(accessToken);

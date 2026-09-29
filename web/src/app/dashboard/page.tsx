@@ -39,6 +39,7 @@ import {
   getCourseColor,
 } from "@/lib/utils";
 import { getWebCalToken } from "@/lib/storage";
+import { openGoogleSignInWindow } from "@/lib/google-auth-popup";
 import { toast } from "sonner";
 
 type ViewMode = "grid" | "table" | "calendar";
@@ -550,7 +551,11 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => (window.location.href = "/api/auth/google/url?state=dashboard")}
+                onClick={() =>
+                  openGoogleSignInWindow(() => {
+                    handleGoogleCalendarSync();
+                  }, "dashboard")
+                }
                 className="h-7 text-xs border-red-300 text-red-700 hover:bg-red-100"
               >
                 Reconnect Google Calendar
