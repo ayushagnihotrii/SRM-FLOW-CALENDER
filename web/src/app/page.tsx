@@ -3,34 +3,40 @@
 import Link from "next/link";
 import {
   Upload,
-  Search,
+  Calendar,
   Smartphone,
   ArrowRight,
   GraduationCap,
-  Calendar,
   Bell,
   CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/header";
+import { Header, GoogleGIcon } from "@/components/header";
 
 const steps = [
   {
     number: "01",
-    title: "Upload",
-    description: "Upload your timetable as an image or PDF.",
-    icon: Upload,
+    title: "Sign in with Google",
+    description: "One-click OAuth authorization creates your dedicated CampusPulse secondary calendar.",
+    icon: Sparkles,
   },
   {
     number: "02",
-    title: "Review",
-    description: "CampusPulse extracts your classes automatically.",
-    icon: Search,
+    title: "Upload Timetable",
+    description: "Upload an image or PDF. Gemini 2.5 Flash understands merged cells and class blocks.",
+    icon: Upload,
   },
   {
     number: "03",
-    title: "Sync",
-    description: "Export to your calendar and Android device.",
+    title: "Review & Edit",
+    description: "Verify course codes, timings, rooms, and professors on an interactive weekly dashboard.",
+    icon: Calendar,
+  },
+  {
+    number: "04",
+    title: "Sync with Google Calendar",
+    description: "Synchronizes recurring classes with native 20-minute popup alarms and Android widget.",
     icon: Smartphone,
   },
 ];
@@ -38,163 +44,214 @@ const steps = [
 const features = [
   {
     icon: Calendar,
-    title: "Calendar Export",
-    description: "Download .ICS files or subscribe via WebCal",
+    title: "Google Calendar Sync",
+    description: "Automatic creation of recurring classes inside a dedicated CampusPulse calendar with popup alerts.",
   },
   {
     icon: Bell,
-    title: "Smart Reminders",
-    description: "20-minute pre-class notifications",
+    title: "20-Minute Reminders",
+    description: "Pre-class notifications both natively in Google Calendar and through Android AlarmManager.",
   },
   {
     icon: Smartphone,
-    title: "Home Widget",
-    description: "See your next class right on your home screen",
+    title: "Android Glance Widget",
+    description: "Glance at your next upcoming class, room number, and time right on your phone's home screen.",
   },
   {
     icon: CheckCircle2,
-    title: "Offline Ready",
-    description: "Works without internet after initial sync",
+    title: "Offline-First Android",
+    description: "Room local database caches your entire semester schedule so you never miss a lecture.",
   },
 ];
 
 export default function HomePage() {
+  const handleGoogleLogin = async () => {
+    try {
+      const res = await fetch("/api/auth/google/url?state=dashboard");
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      window.location.href = "/api/auth/google/callback?demo=true&state=dashboard";
+    }
+  };
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
       <Header />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-32">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-1.5 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-              <GraduationCap className="h-4 w-4 text-blue-600" />
-              <span>For university students</span>
+      <section className="relative overflow-hidden border-b border-zinc-200/80 dark:border-zinc-800/80">
+        <div className="absolute inset-0 bg-radial-at-t from-blue-500/10 via-transparent to-transparent dark:from-blue-600/15" />
+        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 relative">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200/60 bg-blue-50/50 px-4 py-1.5 text-xs sm:text-sm font-medium text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300">
+              <GraduationCap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span>Smart Timetable to Google Calendar & Android Widget</span>
             </div>
 
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              Turn your timetable into a{" "}
-              <span className="text-blue-600">smarter schedule</span>
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+              Turn your university timetable into a{" "}
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                smarter schedule
+              </span>
             </h1>
 
             <p className="mt-6 text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
-              Upload your university timetable and automatically convert it into
-              calendar events, reminders, and an Android home-screen schedule.
+              Sign in with your Google account, upload your timetable image or PDF, review extracted classes, and automatically sync recurring lectures with 20-minute reminders to Google Calendar and your Android home screen.
             </p>
 
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" asChild>
-                <Link href="/upload">
-                  <Upload className="h-4 w-4" />
-                  Upload Timetable
-                </Link>
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Button
+                size="lg"
+                onClick={handleGoogleLogin}
+                className="w-full sm:w-auto gap-2.5 rounded-full px-6 py-6 text-base font-semibold shadow-md bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+              >
+                <GoogleGIcon className="h-5 w-5" />
+                <span>Continue with Google</span>
               </Button>
 
-              <Button variant="outline" size="lg" asChild>
-                <a href="#how-it-works">
-                  How it Works
-                  <ArrowRight className="h-4 w-4" />
-                </a>
+              <Button
+                variant="outline"
+                size="lg"
+                asChild
+                className="w-full sm:w-auto rounded-full px-6 py-6 text-base font-semibold"
+              >
+                <Link href="/upload">
+                  <Upload className="h-4 w-4" />
+                  <span>Upload Timetable Directly</span>
+                </Link>
               </Button>
+            </div>
+
+            {/* Quick trust metrics */}
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-500 dark:text-zinc-400">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span>Zero Manual Calendar Entry</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span>Narrow Calendar.app.created Scope</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span>Pre-Class 20m Notifications</span>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Subtle grid pattern background */}
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
       </section>
 
-      {/* How it Works */}
-      <section
-        id="how-it-works"
-        className="border-t border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50"
-      >
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      {/* How it works */}
+      <section id="how-it-works" className="py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              How it works
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+              Core Workflow
             </h2>
-            <p className="mt-3 text-zinc-600 dark:text-zinc-400">
-              Three simple steps to a smarter schedule
+            <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              From PDF or image to Google Calendar in 60 seconds
             </p>
           </div>
 
-          <div className="mt-14 grid gap-8 sm:grid-cols-3">
-            {steps.map((step) => (
-              <div
-                key={step.number}
-                className="relative rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950"
-              >
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="text-3xl font-bold text-zinc-200 dark:text-zinc-800">
+          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map((step) => {
+              const Icon = step.icon;
+              return (
+                <div
+                  key={step.number}
+                  className="relative rounded-2xl border border-zinc-200/80 bg-zinc-50/50 p-6 dark:border-zinc-800/80 dark:bg-zinc-900/50"
+                >
+                  <span className="text-4xl font-extrabold text-blue-600/20 dark:text-blue-400/20">
                     {step.number}
                   </span>
-                  <div className="rounded-lg bg-blue-50 p-2 dark:bg-blue-950/30">
-                    <step.icon className="h-5 w-5 text-blue-600" />
+                  <div className="mt-4 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
+                    <Icon className="h-5 w-5" />
                   </div>
+                  <h3 className="mt-4 text-lg font-semibold">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    {step.description}
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold">{step.title}</h3>
-                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                  {step.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="border-t border-zinc-200 dark:border-zinc-800">
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <section className="border-t border-zinc-200 bg-zinc-50/50 py-20 sm:py-28 dark:border-zinc-800 dark:bg-zinc-900/30">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Everything you need
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+              Features
             </h2>
-            <p className="mt-3 text-zinc-600 dark:text-zinc-400">
-              One upload. Everywhere you need it.
+            <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              Everything built for a frictionless university semester
             </p>
           </div>
 
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="rounded-xl border border-zinc-200 p-5 dark:border-zinc-800"
-              >
-                <div className="mb-3 inline-flex rounded-lg bg-zinc-100 p-2 dark:bg-zinc-800">
-                  <feature.icon className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
+          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {features.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={feature.title}
+                  className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 text-blue-600 dark:bg-blue-400/10 dark:text-blue-400">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-4 text-base font-semibold">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    {feature.description}
+                  </p>
                 </div>
-                <h3 className="font-semibold">{feature.title}</h3>
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
+        </div>
+      </section>
 
-          <div className="mt-14 text-center">
-            <Button size="lg" asChild>
-              <Link href="/upload">
-                Get Started
+      {/* CTA */}
+      <section className="py-20 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 p-8 text-center text-white sm:p-16 shadow-xl">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Ready to sync your schedule?
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-base text-blue-100 sm:text-lg">
+              Sign in with your Google account now and let AI turn your timetable into native calendar events with 20-minute pre-class reminders.
+            </p>
+            <div className="mt-8 flex justify-center">
+              <Button
+                size="lg"
+                onClick={handleGoogleLogin}
+                className="gap-2.5 rounded-full bg-white px-8 py-6 text-base font-bold text-blue-700 shadow-md hover:bg-blue-50"
+              >
+                <GoogleGIcon className="h-5 w-5" />
+                <span>Continue with Google</span>
                 <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-200 dark:border-zinc-800">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-zinc-500">
-              <GraduationCap className="h-4 w-4" />
-              <span>CampusPulse</span>
-            </div>
-            <p className="text-sm text-zinc-400">
-              Built for students, by students
-            </p>
+      <footer className="border-t border-zinc-200 py-8 dark:border-zinc-800">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-center sm:flex-row sm:text-left sm:px-6">
+          <div className="flex items-center gap-2 font-semibold">
+            <GraduationCap className="h-5 w-5 text-blue-600" />
+            <span>CampusPulse</span>
           </div>
+          <p className="text-sm text-zinc-500">
+            Smart Timetable to Google Calendar & Android Widget Sync
+          </p>
         </div>
       </footer>
     </div>

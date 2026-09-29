@@ -32,3 +32,6 @@ android/captures/
 *.swo
 .DS_Store
 *.log
+data/
+web/data/
+
