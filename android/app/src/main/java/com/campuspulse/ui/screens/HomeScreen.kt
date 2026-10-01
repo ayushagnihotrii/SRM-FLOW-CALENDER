@@ -1,7 +1,10 @@
 package com.campuspulse.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.res.painterResource
+import com.campuspulse.R
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -59,15 +62,13 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
+                        Image(
+                            painter = painterResource(id = R.drawable.app_logo),
+                            contentDescription = "CampusPulse Logo",
                             modifier = Modifier
-                                .size(32.dp)
+                                .size(34.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(Brush.linearGradient(listOf(Indigo500, Violet500))),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("CP", color = White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        }
+                        )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(

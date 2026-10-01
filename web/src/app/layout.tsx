@@ -14,6 +14,15 @@ export const metadata: Metadata = {
   title: "CampusPulse — Smart Timetable to Calendar Sync",
   description:
     "Upload your university timetable and automatically convert it into calendar events, reminders, and an Android home-screen schedule.",
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/logo.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
   keywords: [
     "timetable",
     "calendar",

@@ -1,4 +1,4 @@
-import { serverDb } from "./server-db";
+import { serverDb, GoogleAccount } from "./server-db";
 import { SavedEvent } from "./schemas";
 import crypto from "crypto";
 
@@ -146,8 +146,11 @@ export async function refreshAccessToken(refreshToken: string): Promise<{
   };
 }
 
-export async function getValidAccessToken(userId: string): Promise<string> {
-  const account = serverDb.getGoogleAccountByUserId(userId);
+export async function getValidAccessToken(
+  userId: string,
+  sessionAccount?: GoogleAccount | null
+): Promise<string> {
+  const account = sessionAccount || serverDb.getGoogleAccountByUserId(userId);
   if (!account) {
     throw new Error("No Google account linked for this user");
   }
@@ -338,7 +341,8 @@ export async function syncTimetableToGoogle(
     semesterStart?: string;
     semesterEnd?: string;
     timezone?: string;
-  }
+  },
+  sessionAccount?: GoogleAccount | null
 ): Promise<{
   success: boolean;
   calendarId: string;
@@ -401,7 +405,7 @@ export async function syncTimetableToGoogle(
   }
 
   // Live Google API Flow
-  const accessToken = await getValidAccessToken(userId);
+  const accessToken = await getValidAccessToken(userId, sessionAccount);
   const calendarId = await getOrCreateCampusPulseCalendar(accessToken, userId);
 
   // Fetch all existing events from the secondary calendar

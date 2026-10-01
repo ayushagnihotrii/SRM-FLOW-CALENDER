@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { syncTimetableToGoogle } from "@/lib/google-calendar";
 import { serverDb } from "@/lib/server-db";
+import { decryptSession, encryptSession } from "@/lib/session";
 import { SavedEvent } from "@/lib/schemas";
 
 export async function POST(request: NextRequest) {
   try {
-    const sessionId = request.cookies.get("campuspulse_session")?.value;
+    const sessionCookie = request.cookies.get("campuspulse_session")?.value;
 
-    let user = sessionId ? serverDb.getUserById(sessionId) : null;
+    const sessionData = sessionCookie ? decryptSession(sessionCookie) : null;
+    let user =
+      sessionData?.user ||
+      (sessionCookie ? serverDb.getUserById(sessionCookie) : null);
+    let googleAccount =
+      sessionData?.account ||
+      (user ? serverDb.getGoogleAccountByUserId(user.id) : null);
+
     if (!user) {
       // Create guest/demo user if not yet authenticated
       user = serverDb.upsertUser({
@@ -35,22 +43,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await syncTimetableToGoogle(user.id, events, {
-      semesterStart,
-      semesterEnd,
-      timezone,
-    });
+    const result = await syncTimetableToGoogle(
+      user.id,
+      events,
+      {
+        semesterStart,
+        semesterEnd,
+        timezone,
+      },
+      googleAccount
+    );
 
     const response = NextResponse.json(result);
-    // Ensure cookie is set
-    if (!sessionId) {
-      response.cookies.set("campuspulse_session", user.id, {
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 30,
-      });
-    }
+    // Ensure encrypted cookie is set
+    const sessionToken = encryptSession({
+      user,
+      account: googleAccount || undefined,
+    });
+    response.cookies.set("campuspulse_session", sessionToken, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 30,
+    });
 
     return response;
   } catch (error) {

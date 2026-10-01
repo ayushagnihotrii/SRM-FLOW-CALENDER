@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server-db";
 import { isGoogleConfigured } from "@/lib/google-calendar";
+import { decryptSession } from "@/lib/session";
 
 export async function GET(request: NextRequest) {
-  const sessionId = request.cookies.get("campuspulse_session")?.value;
+  const sessionCookie = request.cookies.get("campuspulse_session")?.value;
 
-  if (!sessionId) {
+  if (!sessionCookie) {
     return NextResponse.json({
       authenticated: false,
       user: null,
@@ -13,7 +14,19 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const user = serverDb.getUserById(sessionId);
+  // 1. Try decrypting session cookie (stateless, works on Vercel Serverless)
+  const sessionData = decryptSession(sessionCookie);
+  let user = sessionData?.user || null;
+  let googleAccount = sessionData?.account || null;
+
+  // 2. Fallback to serverDb
+  if (!user) {
+    user = serverDb.getUserById(sessionCookie);
+  }
+  if (user && !googleAccount) {
+    googleAccount = serverDb.getGoogleAccountByUserId(user.id);
+  }
+
   if (!user) {
     return NextResponse.json({
       authenticated: false,
@@ -21,8 +34,6 @@ export async function GET(request: NextRequest) {
       isGoogleConfigured: isGoogleConfigured(),
     });
   }
-
-  const googleAccount = serverDb.getGoogleAccountByUserId(user.id);
 
   return NextResponse.json({
     authenticated: true,

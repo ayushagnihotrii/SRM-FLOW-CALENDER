@@ -82,7 +82,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 relative">
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200/60 bg-blue-50/50 px-4 py-1.5 text-xs sm:text-sm font-medium text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300">
-              <GraduationCap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <img src="/logo.png" alt="CampusPulse" className="h-5 w-5 object-contain rounded-xs" />
               <span>Smart Timetable to Google Calendar & Android Widget</span>
             </div>
 
@@ -240,8 +240,8 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-zinc-200 py-8 dark:border-zinc-800">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-center sm:flex-row sm:text-left sm:px-6">
-          <div className="flex items-center gap-2 font-semibold">
-            <GraduationCap className="h-5 w-5 text-blue-600" />
+          <div className="flex items-center gap-2.5 font-semibold">
+            <img src="/logo.png" alt="CampusPulse Logo" className="h-6 w-6 object-contain rounded-md" />
             <span>CampusPulse</span>
           </div>
           <p className="text-sm text-zinc-500">

@@ -167,8 +167,13 @@ function GoogleSelectContent() {
       <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
         {/* Google Header */}
         <div className="text-center">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-zinc-50 dark:bg-zinc-800 shadow-xs mb-3">
-            <GoogleGIcon className="h-6 w-6" />
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-white p-1 shadow-xs dark:border-zinc-800 dark:bg-zinc-800">
+              <img src="/logo.png" alt="CampusPulse" className="h-full w-full object-contain" />
+            </div>
+            <div className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
+              <GoogleGIcon className="h-4 w-4" />
+            </div>
           </div>
           <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
             Sign in with Google

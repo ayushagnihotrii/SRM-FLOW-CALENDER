@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server-db";
+import { encryptSession } from "@/lib/session";
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,8 +29,9 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ success: true, user });
 
-    // Set HTTP-only session cookie
-    response.cookies.set("campuspulse_session", user.id, {
+    // Set HTTP-only session cookie with encrypted user
+    const sessionToken = encryptSession({ user });
+    response.cookies.set("campuspulse_session", sessionToken, {
       path: "/",
       httpOnly: true,
       sameSite: "lax",

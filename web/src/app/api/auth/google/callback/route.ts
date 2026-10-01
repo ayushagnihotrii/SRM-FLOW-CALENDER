@@ -5,7 +5,8 @@ import {
   getOrCreateCampusPulseCalendar,
   isGoogleConfigured,
 } from "@/lib/google-calendar";
-import { serverDb } from "@/lib/server-db";
+import { serverDb, User, GoogleAccount } from "@/lib/server-db";
+import { encryptSession } from "@/lib/session";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
@@ -21,7 +22,9 @@ export async function GET(request: NextRequest) {
     ? cleanState
     : `/${cleanState}`;
 
-  function createResponse(userId: string) {
+  function createResponse(user: User, account?: GoogleAccount) {
+    const sessionToken = encryptSession({ user, account });
+
     if (isPopup) {
       const html = `<!DOCTYPE html>
 <html>
@@ -43,7 +46,7 @@ export async function GET(request: NextRequest) {
   <script>
     try {
       if (window.opener) {
-        window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', userId: '${userId}' }, '*');
+        window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', userId: '${user.id}' }, '*');
       }
     } catch(e) {}
     setTimeout(function() { window.close(); }, 600);
@@ -53,7 +56,7 @@ export async function GET(request: NextRequest) {
       const res = new NextResponse(html, {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       });
-      res.cookies.set("campuspulse_session", userId, {
+      res.cookies.set("campuspulse_session", sessionToken, {
         path: "/",
         httpOnly: true,
         sameSite: "lax",
@@ -65,7 +68,7 @@ export async function GET(request: NextRequest) {
     const res = NextResponse.redirect(
       new URL(`${redirectTarget}?auth=success`, request.url)
     );
-    res.cookies.set("campuspulse_session", userId, {
+    res.cookies.set("campuspulse_session", sessionToken, {
       path: "/",
       httpOnly: true,
       sameSite: "lax",
@@ -86,7 +89,7 @@ export async function GET(request: NextRequest) {
         campusPulseCalendarId: "campuspulse_demo_calendar",
       });
 
-      return createResponse(demoUser.id);
+      return createResponse(demoUser);
     }
 
     // Resolve dynamic request origin for exact redirect_uri match with Google OAuth
@@ -115,7 +118,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Save tokens securely on server
-    serverDb.upsertGoogleAccount({
+    const account = serverDb.upsertGoogleAccount({
       userId: user.id,
       googleUserId: profile.id,
       email: profile.email,
@@ -131,7 +134,7 @@ export async function GET(request: NextRequest) {
       console.warn("Could not pre-initialize calendar on callback:", calErr);
     }
 
-    return createResponse(user.id);
+    return createResponse(user, account);
   } catch (err) {
     console.error("OAuth callback error:", err);
     if (isPopup) {
