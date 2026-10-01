@@ -168,7 +168,7 @@ function GoogleSelectContent() {
         {/* Google Header */}
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-white p-1 shadow-xs dark:border-zinc-800 dark:bg-zinc-800">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-200 bg-white p-1.5 shadow-xs dark:border-zinc-800 dark:bg-zinc-800">
               <img src="/logo.png" alt="CampusPulse" className="h-full w-full object-contain" />
             </div>
             <div className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">

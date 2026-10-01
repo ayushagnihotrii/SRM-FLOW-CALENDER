@@ -95,20 +95,20 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-zinc-200 bg-white/90 backdrop-blur-lg dark:border-zinc-800 dark:bg-zinc-950/90">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         {/* Brand */}
         <Link
           href="/"
-          className="flex items-center gap-2 font-semibold tracking-tight"
+          className="group flex items-center gap-2.5 font-semibold tracking-tight transition-transform hover:opacity-95"
         >
-          <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-zinc-200 bg-white p-0.5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center overflow-hidden rounded-xl border border-zinc-200/80 bg-white p-1 shadow-xs transition-shadow duration-200 group-hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
             <img
               src="/logo.png"
               alt="CampusPulse Logo"
               className="h-full w-full object-contain"
             />
           </div>
-          <span className="text-base font-bold bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
+          <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
             CampusPulse
           </span>
         </Link>
